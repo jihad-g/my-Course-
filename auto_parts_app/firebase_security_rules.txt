@@ -1,0 +1,24 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /parts/{partId} {
+      allow read: if true;  // public browsing
+      allow write: if request.auth != null && request.auth.token.admin == true;
+    }
+    match /messages/{messageId} {
+      allow read, write: if request.auth != null;  // authenticated chat
+    }
+  }
+}
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /chat_images/{allPaths=**} {
+      allow read, write: if request.auth != null;  // chat images
+    }
+    match /product_images/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.admin == true;
+    }
+  }
+}
